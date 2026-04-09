@@ -1,0 +1,110 @@
+import React, { useState } from 'react';
+import { Box, Typography, TextField, Button, Stack, Link } from '@mui/material';
+
+export default function LoginPage({ onLogin, onSwitchMode, onForgotPassword }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const submit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Please enter your password.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const success = onLogin({ email, password });
+      if (!success) {
+        setError('Invalid email or password. Please try again.');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={submit}>
+      <Stack spacing={2}>
+        <Typography variant="h6" fontWeight={700}>Login</Typography>
+        
+        <TextField 
+          label="Email" 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          fullWidth 
+          required
+          disabled={loading}
+          placeholder="Enter your email"
+        />
+        
+        <TextField 
+          label="Password" 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          fullWidth 
+          required
+          disabled={loading}
+          placeholder="Enter your password"
+        />
+
+        {error && (
+          <Typography variant="body2" sx={{ color: '#ff6b6b', fontWeight: 500 }}>
+            ⚠️ {error}
+          </Typography>
+        )}
+        
+        <Button 
+          type="submit" 
+          variant="contained" 
+          fullWidth 
+          size="large"
+          disabled={loading}
+        >
+          {loading ? 'Signing in...' : 'Sign in'}
+        </Button>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body2">
+            New user?{' '}
+            <Link 
+              component="button" 
+              variant="body2" 
+              onClick={(e) => {
+                e.preventDefault();
+                onSwitchMode();
+              }}
+              sx={{ cursor: 'pointer', color: '#ff8a00', fontWeight: 600 }}
+            >
+              Create an account
+            </Link>
+          </Typography>
+          <Link 
+            component="button" 
+            variant="body2" 
+            onClick={(e) => {
+              e.preventDefault();
+              onForgotPassword();
+            }}
+            sx={{ cursor: 'pointer', whiteSpace: 'nowrap', color: '#ff8a00', fontWeight: 600 }}
+          >
+            Forgot password?
+          </Link>
+        </Box>
+      </Stack>
+    </Box>
+  );
+}
